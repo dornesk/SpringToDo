@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Task Manager</title>
+</head>
+<body>
+<header>
+    <nav>
+        <a th:href="@{/}">Главная</a> |
+        <a th:href="@{/create}">Создать задачу</a>
+    </nav>
+</header>
+
+<h1>TODO List</h1>
+
+<ul>
+    <li><a th:href="@{/api/v1/tasks}">Все задачи</a></li>
+    <li>
+        Получить задачу по ID:
+        <input type="number" id="taskId" value="1" />
+        <button onclick="getTask()">Перейти</button>
+    </li>
+</ul>
+
+<div>
+    <h2>Список задач:</h2>
+    <p>Сортировать по:
+        <a th:href="@{/?sort=dueDate}">Сроку</a> |
+        <a th:href="@{/?sort=status}">Статусу</a> |
+        <a th:href="@{/}">Без сортировки</a>
+    </p>
+    <ul>
+        <li th:each="task : ${tasks}" th:text="${task.title} + ' (' + ${task.status} + ')'"></li>
+    </ul>
+</div>
+
+<script>
+    function getTask() {
+        const id = document.getElementById('taskId').value;
+        if (id) {
+            window.location.href = `/tasks/${id}`;
+        } else {
+            alert('Введите ID задачи');
+        }
+    }
+</script>
+</body>
+</html>

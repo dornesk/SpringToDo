@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Детали задачи</title>
+</head>
+<body>
+<a th:href="@{/}">Назад к списку</a>
+
+<h1 th:text="${task.title}">Заголовок задачи</h1>
+<p><strong>Описание:</strong> <span th:text="${task.description}">Описание</span></p>
+<p><strong>Статус:</strong> <span th:text="${task.status}">Статус</span></p>
+<p><strong>Срок выполнения:</strong> <span th:text="${task.dueDate}">Дата</span></p>
+</body>
+</html>
