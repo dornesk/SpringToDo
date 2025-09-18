@@ -26,9 +26,11 @@
 
 ## Структура проекта
 - model/ — классы сущностей JPA (например, Task)
+- dto/ — классы Data Transfer Object (TaskDTO, TaskCreateDTO)
+- mapper/ — классы для преобразования между сущностями и DTO (TaskMapper)
 - repository/ — интерфейс для работы с базой данных
 - service/ — бизнес-логика приложения
 - controller/ — обработчики HTTP-запросов и рендеринг страниц
-- resources/templates/ — Thymeleaf шаблоны (HTML)
 - exception/ — классы для обработки ошибок и исключений
+- resources/templates/ — Thymeleaf шаблоны (HTML)
 - resources/application.properties — настройки приложения
