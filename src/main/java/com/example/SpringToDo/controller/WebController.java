@@ -1,5 +1,8 @@
 package com.example.SpringToDo.controller;
 
+import com.example.SpringToDo.dto.TaskCreateDTO;
+import com.example.SpringToDo.dto.TaskDTO;
+import com.example.SpringToDo.mapper.TaskMapper;
 import com.example.SpringToDo.model.Task;
 import com.example.SpringToDo.model.TaskStatus;
 import com.example.SpringToDo.service.TaskService;
@@ -10,11 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Controller
 @AllArgsConstructor
 public class WebController {
     private final TaskService taskService;
+    private final TaskMapper taskMapper;
 
     @GetMapping("/")
     public String index(@RequestParam(required = false) String sort, Model model) {
@@ -26,31 +31,36 @@ public class WebController {
         } else {
             tasks = taskService.getAllTasks();
         }
-        model.addAttribute("tasks", tasks);
+        List<TaskDTO> dtos = tasks.stream()
+                .map(taskMapper::toDto)
+                .collect(Collectors.toList());
+        model.addAttribute("tasks", dtos);
         return "index";
     }
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("task", new Task());
+        model.addAttribute("task", new TaskCreateDTO());
         model.addAttribute("statuses", TaskStatus.values());
         return "createTask";
     }
 
     @PostMapping("/create")
-    public String createTaskSubmit(@ModelAttribute Task task) {
+    public String createTaskSubmit(@ModelAttribute TaskCreateDTO taskCreateDTO) {
+        Task task = taskMapper.toEntity(taskCreateDTO);
         taskService.createTask(task);
-        return "redirect:/";  // после создания перенаправляем на главную
+        return "redirect:/";
     }
 
     @GetMapping("/tasks/{id}")
     public String getTaskPage(@PathVariable int id, Model model) {
         try {
             Task task = taskService.getTaskById(id);
-            model.addAttribute("task", task);
-            return "taskDetails";  // шаблон taskDetails.html для отображения задачи
+            TaskDTO dto = taskMapper.toDto(task);
+            model.addAttribute("task", dto);
+            return "taskDetails";
         } catch (NoSuchElementException ex) {
-            return "taskNotFound"; // шаблон с сообщением, что задача не найдена
+            return "taskNotFound";
         }
     }
 

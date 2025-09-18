@@ -15,19 +15,19 @@
 <h1>Создание новой задачи</h1>
 
 <form th:action="@{/create}" th:object="${task}" method="post">
-    <label for="title">Название:</label>
-    <input type="text" id="title" th:field="*{title}" required/><br/>
+    <label>Название:</label>
+    <input type="text" th:field="*{title}" />
 
-    <label for="description">Описание:</label>
-    <textarea id="description" th:field="*{description}"></textarea><br/>
+    <label>Описание:</label>
+    <textarea th:field="*{description}"></textarea>
 
-    <label for="dueDate">Срок выполнения:</label>
-    <input type="date" id="dueDate" th:field="*{dueDate}" required/><br/>
+    <label>Дата выполнения:</label>
+    <input type="date" th:field="*{dueDate}" />
 
-    <label for="status">Статус:</label>
-    <select id="status" th:field="*{status}">
-        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
-    </select><br/>
+    <label>Статус:</label>
+    <select th:field="*{status}">
+        <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}">TODO</option>
+    </select>
 
     <button type="submit">Создать</button>
 </form>

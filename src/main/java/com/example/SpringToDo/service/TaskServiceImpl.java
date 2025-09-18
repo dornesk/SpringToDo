@@ -1,5 +1,6 @@
 package com.example.SpringToDo.service;
 
+import com.example.SpringToDo.mapper.TaskMapper;
 import com.example.SpringToDo.model.Task;
 import com.example.SpringToDo.model.TaskStatus;
 import com.example.SpringToDo.repository.TaskRepository;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository repository;
+    private final TaskMapper taskMapper;
 
     @Override
     public void createTask(Task task) {

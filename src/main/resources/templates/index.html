@@ -45,11 +45,10 @@
             <td th:text="${task.status}">Task status</td>
             <td th:text="${#temporals.format(task.dueDate, 'dd-MM-yyyy')}">Due Date</td>
             <td>
-                <form th:action="@{'/api/v1/tasks/' + ${task.id}}" th:method="delete"
-                      th:onsubmit="return confirm('Удалить эту задачу?');">
+                <form th:action="@{'/api/v1/tasks/' + ${task.id}}" method="post" th:onsubmit="return confirm('Удалить эту задачу?');">
+                    <input type="hidden" name="_method" value="delete" />
                     <button type="submit">Удалить</button>
                 </form>
-
             </td>
         </tr>
         </tbody>
