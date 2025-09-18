@@ -30,9 +30,30 @@
         <a th:href="@{/?sort=status}">Статусу</a> |
         <a th:href="@{/}">Без сортировки</a>
     </p>
-    <ul>
-        <li th:each="task : ${tasks}" th:text="${task.title} + ' (' + ${task.status} + ')'"></li>
-    </ul>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>Название</th>
+            <th>Статус</th>
+            <th>Дата выполнения</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="task : ${tasks}">
+            <td th:text="${task.title}">Task title</td>
+            <td th:text="${task.status}">Task status</td>
+            <td th:text="${#temporals.format(task.dueDate, 'dd-MM-yyyy')}">Due Date</td>
+            <td>
+                <form th:action="@{'/api/v1/tasks/' + ${task.id}}" th:method="delete"
+                      th:onsubmit="return confirm('Удалить эту задачу?');">
+                    <button type="submit">Удалить</button>
+                </form>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 
 <script>
