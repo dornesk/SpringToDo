@@ -64,4 +64,25 @@ public class WebController {
         }
     }
 
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable int id, Model model) {
+        try {
+            Task task = taskService.getTaskById(id);
+            TaskDTO dto = taskMapper.toDto(task);
+            model.addAttribute("task", dto);
+            model.addAttribute("statuses", TaskStatus.values());
+            return "editTask"; // новый шаблон с формой редактирования
+        } catch (NoSuchElementException e) {
+            return "taskNotFound";
+        }
+    }
+
+    @PostMapping("/edit/{id}")
+    public String updateTask(@PathVariable int id, @ModelAttribute("task") TaskDTO taskDTO) {
+        Task task = taskMapper.toEntity(taskDTO);
+        task.setId(id);
+        taskService.updateTask(task);
+        return "redirect:/";
+    }
+
 }

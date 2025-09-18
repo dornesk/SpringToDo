@@ -37,6 +37,7 @@
             <th>Статус</th>
             <th>Дата выполнения</th>
             <th>Действия</th>
+            <th>Редактировать</th> <!-- новая колонка -->
         </tr>
         </thead>
         <tbody>
@@ -45,14 +46,19 @@
             <td th:text="${task.status}">Task status</td>
             <td th:text="${#temporals.format(task.dueDate, 'dd-MM-yyyy')}">Due Date</td>
             <td>
-                <form th:action="@{'/api/v1/tasks/' + ${task.id}}" method="post" th:onsubmit="return confirm('Удалить эту задачу?');">
+                <form th:action="@{'/api/v1/tasks/' + ${task.id}}" method="post"
+                      th:onsubmit="return confirm('Удалить эту задачу?');">
                     <input type="hidden" name="_method" value="delete" />
                     <button type="submit">Удалить</button>
                 </form>
             </td>
+            <td>
+                <a th:href="@{'/edit/' + ${task.id}}">Редактировать</a> <!-- ссылка для редактирования -->
+            </td>
         </tr>
         </tbody>
     </table>
+
 </div>
 
 <script>
