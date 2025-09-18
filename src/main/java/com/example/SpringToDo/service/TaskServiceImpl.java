@@ -3,6 +3,7 @@ package com.example.SpringToDo.service;
 import com.example.SpringToDo.model.Task;
 import com.example.SpringToDo.model.TaskStatus;
 import com.example.SpringToDo.repository.TaskRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository repository;
@@ -20,9 +22,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void createTask(Task task) {
         validateTask(task);
-        if (!repository.existsById(task.getId())) {
-            throw new NoSuchElementException("Task with this ID not found");
-        }
         repository.save(task);
     }
 

@@ -3,7 +3,7 @@ package com.example.SpringToDo.controller;
 import com.example.SpringToDo.model.Task;
 import com.example.SpringToDo.model.TaskStatus;
 import com.example.SpringToDo.service.TaskService;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/tasks")
-@RequiredArgsConstructor
+@RequestMapping("api/v1/tasks")
+@AllArgsConstructor
 public class TaskController {
     private final TaskService taskService;
 
