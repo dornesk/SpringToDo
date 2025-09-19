@@ -2,6 +2,7 @@ package com.example.SpringToDo.service;
 
 import com.example.SpringToDo.dto.TaskCreateDTO;
 import com.example.SpringToDo.dto.TaskDTO;
+import com.example.SpringToDo.exception.TaskNotFoundException;
 import com.example.SpringToDo.mapper.TaskMapper;
 import com.example.SpringToDo.model.Task;
 import com.example.SpringToDo.model.TaskStatus;
@@ -37,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
         task.setId(id);
         validateTask(task);
         if (!repository.existsById(task.getId())) {
-            throw new NoSuchElementException("Task with this ID not found");
+            throw new TaskNotFoundException(id);
         }
         repository.save(task);
         return dto;
@@ -46,7 +47,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void deleteTask(int id) {
         if (!repository.existsById(id)) {
-            throw new NoSuchElementException("Task with this ID not found");
+            throw new TaskNotFoundException(id);
         }
         repository.deleteById(id);
     }
@@ -63,7 +64,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO getTaskById(int id) {
         Task task = repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Task with this ID not found"));
+                .orElseThrow(() -> new TaskNotFoundException(id));
         return taskMapper.toDto(task);
     }
 
