@@ -28,13 +28,10 @@ public class TaskRepositoryTest {
         task.setDueDate(LocalDate.now().plusDays(1));
         task.setStatus(TaskStatus.TODO);
 
-        //сохраняем задачу
         Task savedTask = taskRepository.save(task);
 
-        //проверяем, что ID присвоен
         assertThat(savedTask.getId()).isGreaterThan(0);
 
-        //ищем задачу по ID
         Optional<Task> retrieved = taskRepository.findById(savedTask.getId());
 
         assertThat(retrieved).isPresent();

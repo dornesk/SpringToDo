@@ -1,36 +1,43 @@
 package com.example.SpringToDo.controller;
 
-import com.example.SpringToDo.model.Task;
+import com.example.SpringToDo.dto.TaskCreateDTO;
+import com.example.SpringToDo.dto.TaskDTO;
+import com.example.SpringToDo.exception.GlobalExceptionHandler;
+import com.example.SpringToDo.exception.TaskNotFoundException;
 import com.example.SpringToDo.model.TaskStatus;
 import com.example.SpringToDo.service.TaskService;
+import com.example.SpringToDo.testfactory.TaskTestFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TaskController.class)
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Import(GlobalExceptionHandler.class)
 class TaskControllerTest {
-    private final MockMvc mockMvc;
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @MockitoBean
     private TaskService taskService;
+
+    @MockitoBean
+    private com.example.SpringToDo.mapper.TaskMapper taskMapper;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -38,51 +45,54 @@ class TaskControllerTest {
     @Test
     @DisplayName("POST /api/v1/tasks - успешно создать задачу")
     void createTask_success() throws Exception {
-        Task task = new Task(0, "Title", "Desc", LocalDate.now().plusDays(1), TaskStatus.TODO);
+        TaskCreateDTO dto = TaskTestFactory.createDefaultTaskCreateDTO();
 
         mockMvc.perform(post("/api/v1/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(task)))
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated());
 
-        Mockito.verify(taskService).createTask(any(Task.class));
+        verify(taskService).createTask(any(TaskCreateDTO.class));
     }
 
     @Test
     @DisplayName("GET /api/v1/tasks/{id} - успешно получить задачу по ID")
     void getTaskById_success() throws Exception {
-        Task task = new Task(1, "Title", "Desc", LocalDate.now().plusDays(1), TaskStatus.TODO);
+        TaskDTO dto = TaskTestFactory.createDefaultTaskDTO();
 
-        Mockito.when(taskService.getTaskById(1)).thenReturn(task);
+        when(taskService.getTaskById(1)).thenReturn(dto);
 
         mockMvc.perform(get("/api/v1/tasks/{id}", 1))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Title"))
-                .andExpect(jsonPath("$.status").value("TODO"));
+                .andExpect(jsonPath("$.id").value(dto.getId()))
+                .andExpect(jsonPath("$.title").value(dto.getTitle()))
+                .andExpect(jsonPath("$.status").value(dto.getStatus().toString()));
     }
 
     @Test
     @DisplayName("GET /api/v1/tasks/{id} - задача не найдена возвращает 404")
     void getTaskById_notFound() throws Exception {
-        Mockito.when(taskService.getTaskById(999)).thenThrow(new NoSuchElementException("Task with this ID not found"));
+        when(taskService.getTaskById(999)).thenThrow(new TaskNotFoundException(999));
 
         mockMvc.perform(get("/api/v1/tasks/{id}", 999))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("Task with this ID not found"));
+                .andExpect(content().string("Task with id 999 not found"));
     }
 
     @Test
     @DisplayName("PUT /api/v1/tasks/{id} - успешно обновить задачу")
     void updateTask_success() throws Exception {
-        Task updatedTask = new Task(1, "Updated", "Desc", LocalDate.now().plusDays(2), TaskStatus.IN_PROGRESS);
+        TaskDTO dto = TaskTestFactory.createDefaultTaskDTO();
 
-        mockMvc.perform(put("/api/v1/tasks/{id}", 1)
+        when(taskService.updateTask(eq(dto.getId()), any(TaskDTO.class))).thenReturn(dto);
+
+        mockMvc.perform(put("/api/v1/tasks/{id}", dto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedTask)))
-                .andExpect(status().isOk());
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(dto.getId()));
 
-        Mockito.verify(taskService).updateTask(any(Task.class));
+        verify(taskService).updateTask(eq(dto.getId()), any(TaskDTO.class));
     }
 
     @Test
@@ -91,45 +101,43 @@ class TaskControllerTest {
         mockMvc.perform(delete("/api/v1/tasks/{id}", 1))
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(taskService).deleteTask(eq(1));
+        verify(taskService).deleteTask(eq(1));
     }
 
     @Test
     @DisplayName("GET /api/v1/tasks - получить все задачи")
     void getAllTasks_success() throws Exception {
-        List<Task> tasks = List.of(
-                new Task(1, "T1", "D1", LocalDate.now().plusDays(1), TaskStatus.TODO),
-                new Task(2, "T2", "D2", LocalDate.now().plusDays(2), TaskStatus.DONE)
+        List<TaskDTO> dtos = List.of(
+                TaskTestFactory.createDefaultTaskDTO(),
+                TaskTestFactory.createDefaultTaskDTO()
         );
 
-        Mockito.when(taskService.getAllTasks()).thenReturn(tasks);
+        when(taskService.getAllTasks()).thenReturn(dtos);
 
         mockMvc.perform(get("/api/v1/tasks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(tasks.size()))
-                .andExpect(jsonPath("$[0].title").value("T1"))
-                .andExpect(jsonPath("$[1].title").value("T2"));
+                .andExpect(jsonPath("$.length()").value(dtos.size()))
+                .andExpect(jsonPath("$[0].title").value(dtos.get(0).getTitle()))
+                .andExpect(jsonPath("$[1].title").value(dtos.get(1).getTitle()));
     }
 
     @Test
     @DisplayName("GET /api/v1/tasks?status=TODO - фильтрация по статусу")
     void getTasks_filteredByStatus() throws Exception {
-        List<Task> todoTasks = List.of(
-                new Task(1, "T1", "D1", LocalDate.now().plusDays(1), TaskStatus.TODO)
-        );
+        List<TaskDTO> todoDtos = List.of(TaskTestFactory.createDefaultTaskDTO());
 
-        Mockito.when(taskService.filterTasksByStatus(TaskStatus.TODO)).thenReturn(todoTasks);
+        when(taskService.filterTasksByStatus(TaskStatus.TODO)).thenReturn(todoDtos);
 
         mockMvc.perform(get("/api/v1/tasks").param("status", "TODO"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(todoTasks.size()))
+                .andExpect(jsonPath("$.length()").value(todoDtos.size()))
                 .andExpect(jsonPath("$[0].status").value("TODO"));
     }
 
     @Test
     @DisplayName("GET /api/v1/tasks?sort=dueDate - сортировка по дате")
     void getTasks_sortedByDueDate() throws Exception {
-        Mockito.when(taskService.getAllTasksSortedByDueDate()).thenReturn(List.of());
+        when(taskService.getAllTasksSortedByDueDate()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/v1/tasks").param("sort", "dueDate"))
                 .andExpect(status().isOk());
