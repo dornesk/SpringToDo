@@ -1,5 +1,7 @@
 package com.example.SpringToDo.service;
 
+import com.example.SpringToDo.dto.TaskCreateDTO;
+import com.example.SpringToDo.dto.TaskDTO;
 import com.example.SpringToDo.mapper.TaskMapper;
 import com.example.SpringToDo.model.Task;
 import com.example.SpringToDo.model.TaskStatus;
@@ -22,13 +24,16 @@ public class TaskServiceImpl implements TaskService {
     private final TaskMapper taskMapper;
 
     @Override
-    public void createTask(Task task) {
+    public void createTask(TaskCreateDTO dto) {
+        Task task = taskMapper.toEntity(dto);
         validateTask(task);
         repository.save(task);
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(int id, TaskDTO dto) {
+        Task task = taskMapper.toEntity(dto);
+        task.setId(id);
         validateTask(task);
         if (!repository.existsById(task.getId())) {
             throw new NoSuchElementException("Task with this ID not found");
@@ -45,37 +50,53 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getAllTasks() {
-        return repository.findAll();
+    public List<TaskDTO> getAllTasks() {
+        List<Task> tasks = repository.findAll();
+        tasks.forEach(t -> System.out.println("Entity task: " + t));
+        List<TaskDTO> dtos = taskMapper.toDtoList(tasks);
+        dtos.forEach(d -> System.out.println("DTO: " + d));
+        return dtos;
     }
 
     @Override
-    public Task getTaskById(int id) {
-        return repository.findById(id)
+    public TaskDTO getTaskById(int id) {
+        Task task = repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Task with this ID not found"));
+        return taskMapper.toDto(task);
     }
 
     @Override
-    public List<Task> filterTasksByStatus(TaskStatus status) {
+    public List<TaskDTO> filterTasksByStatus(TaskStatus status) {
         if (status == null) {
             throw new IllegalArgumentException("Status cannot be null");
         }
-        return repository.findAll().stream()
+        List<Task> tasks = repository.findAll().stream()
                 .filter(task -> task.getStatus() == status)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Task> getAllTasksSortedByDueDate() {
-        return repository.findAll().stream()
-                .sorted(Comparator.comparing(Task::getDueDate))
+        return tasks.stream()
+                .map(taskMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Task> getAllTasksSortedByStatus() {
-        return repository.findAll().stream()
+    public List<TaskDTO> getAllTasksSortedByDueDate() {
+        List<Task> tasks = repository.findAll().stream()
+                .sorted(Comparator.comparing(Task::getDueDate))
+                .collect(Collectors.toList());
+
+        return tasks.stream()
+                .map(taskMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TaskDTO> getAllTasksSortedByStatus() {
+        List<Task> tasks = repository.findAll().stream()
                 .sorted(Comparator.comparing(Task::getStatus))
+                .collect(Collectors.toList());
+
+        return tasks.stream()
+                .map(taskMapper::toDto)
                 .collect(Collectors.toList());
     }
 

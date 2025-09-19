@@ -24,17 +24,14 @@ public class WebController {
 
     @GetMapping("/")
     public String index(@RequestParam(required = false) String sort, Model model) {
-        List<Task> tasks;
+        List<TaskDTO> dtos;
         if ("dueDate".equalsIgnoreCase(sort)) {
-            tasks = taskService.getAllTasksSortedByDueDate();
+            dtos = taskService.getAllTasksSortedByDueDate();
         } else if ("status".equalsIgnoreCase(sort)) {
-            tasks = taskService.getAllTasksSortedByStatus();
+            dtos = taskService.getAllTasksSortedByStatus();
         } else {
-            tasks = taskService.getAllTasks();
+            dtos = taskService.getAllTasks();
         }
-        List<TaskDTO> dtos = tasks.stream()
-                .map(taskMapper::toDto)
-                .collect(Collectors.toList());
         model.addAttribute("tasks", dtos);
         return "index";
     }
@@ -48,16 +45,14 @@ public class WebController {
 
     @PostMapping("/create")
     public String createTaskSubmit(@ModelAttribute TaskCreateDTO taskCreateDTO) {
-        Task task = taskMapper.toEntity(taskCreateDTO);
-        taskService.createTask(task);
+        taskService.createTask(taskCreateDTO);
         return "redirect:/";
     }
 
     @GetMapping("/tasks/{id}")
     public String getTaskPage(@PathVariable int id, Model model) {
         try {
-            Task task = taskService.getTaskById(id);
-            TaskDTO dto = taskMapper.toDto(task);
+            TaskDTO dto = taskService.getTaskById(id);
             model.addAttribute("task", dto);
             return "taskDetails";
         } catch (NoSuchElementException ex) {
@@ -68,8 +63,7 @@ public class WebController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable int id, Model model) {
         try {
-            Task task = taskService.getTaskById(id);
-            TaskDTO dto = taskMapper.toDto(task);
+            TaskDTO dto = taskService.getTaskById(id);
             model.addAttribute("task", dto);
             model.addAttribute("statuses", TaskStatus.values());
             return "editTask"; // новый шаблон с формой редактирования
@@ -80,9 +74,7 @@ public class WebController {
 
     @PostMapping("/edit/{id}")
     public String updateTask(@PathVariable int id, @ModelAttribute("task") TaskDTO taskDTO) {
-        Task task = taskMapper.toEntity(taskDTO);
-        task.setId(id);
-        taskService.updateTask(task);
+        taskService.updateTask(id, taskDTO);
         return "redirect:/";
     }
 
