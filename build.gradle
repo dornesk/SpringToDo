@@ -32,6 +32,8 @@ dependencies {
 	implementation 'org.postgresql:postgresql:42.5.0'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-java8time:3.0.4.RELEASE'
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
 	compileOnly 'org.projectlombok:lombok:1.18.42'

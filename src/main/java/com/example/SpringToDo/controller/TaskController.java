@@ -5,6 +5,7 @@ import com.example.SpringToDo.dto.TaskDTO;
 import com.example.SpringToDo.mapper.TaskMapper;
 import com.example.SpringToDo.model.TaskStatus;
 import com.example.SpringToDo.service.TaskService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,16 +21,17 @@ public class TaskController {
     private final TaskMapper taskMapper;
 
     @PostMapping
-    public ResponseEntity<Void> createTask(@RequestBody TaskCreateDTO dto) {
+    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskCreateDTO dto) {
         taskService.createTask(dto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateTask(@PathVariable int id, @RequestBody TaskDTO dto) {
-        taskService.updateTask(id, dto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable int id, @Valid @RequestBody TaskDTO dto) {
+        TaskDTO updated = taskService.updateTask(id, dto);
+        return ResponseEntity.ok(updated);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable int id) {

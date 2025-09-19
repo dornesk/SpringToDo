@@ -24,14 +24,15 @@ public class TaskServiceImpl implements TaskService {
     private final TaskMapper taskMapper;
 
     @Override
-    public void createTask(TaskCreateDTO dto) {
+    public TaskDTO createTask(TaskCreateDTO dto) {
         Task task = taskMapper.toEntity(dto);
         validateTask(task);
-        repository.save(task);
+        Task saved = repository.save(task);
+        return taskMapper.toDto(saved);
     }
 
     @Override
-    public void updateTask(int id, TaskDTO dto) {
+    public TaskDTO updateTask(int id, TaskDTO dto) {
         Task task = taskMapper.toEntity(dto);
         task.setId(id);
         validateTask(task);
@@ -39,6 +40,7 @@ public class TaskServiceImpl implements TaskService {
             throw new NoSuchElementException("Task with this ID not found");
         }
         repository.save(task);
+        return dto;
     }
 
     @Override
