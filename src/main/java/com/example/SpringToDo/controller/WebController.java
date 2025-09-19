@@ -7,6 +7,7 @@ import com.example.SpringToDo.model.Task;
 import com.example.SpringToDo.model.TaskStatus;
 import com.example.SpringToDo.service.TaskService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Controller
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WebController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;

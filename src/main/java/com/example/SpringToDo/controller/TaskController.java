@@ -7,6 +7,7 @@ import com.example.SpringToDo.model.Task;
 import com.example.SpringToDo.model.TaskStatus;
 import com.example.SpringToDo.service.TaskService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/tasks")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;
